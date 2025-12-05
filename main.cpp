@@ -19,8 +19,8 @@ void Union(int x, int y)
   if (x == y) return;
   if (ssize[x] < ssize[y]) swap(x, y);
   parent[y] = x;
+  weight[x] = weight[x] * (double) ssize[x] + weight[y] * (double) ssize[y];
   ssize[x] += ssize[y];
-  weight[x] += weight[y];
   weight[x] /= (double) ssize[x];
 }
 
@@ -64,16 +64,10 @@ public:
 
     void setWater(double amt){
         w = amt;
-        weight[Repr(ind)] += amt/((double)ssize[Repr(ind)]);
+        weight[Repr(ind)] = amt + weight[Repr(ind)] * ((double)ssize[Repr(ind)]);
+        weight[Repr(ind)] /= (double)ssize[Repr(ind)];
     }
 };
-
-
-//int c, i, n, s, k, a, b;
-
-
-
-
 
 int main(){
 
@@ -81,6 +75,7 @@ int main(){
     Container* c1 = new Container(1);
     Container* c2 = new Container(4);
     Container* c3 = new Container(1);
+    Container* c4 = new Container(1);
 
     c->connectTo(c1);
     c2->connectTo(c3);
@@ -89,6 +84,9 @@ int main(){
 
     c->connectTo(c2);
 
-        cout << c->getAmount() << endl << c2->getAmount();
+    cout << c->getAmount() << endl << c2->getAmount();
 
+    c2 -> connectTo(c4);
+
+    cout << endl << c4->getAmount();
 }
