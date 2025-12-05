@@ -2,43 +2,60 @@
 
 using namespace std;
 
+//vector<vector<int>> connections;
+vector<int> parent, ssize;
+vector<double> weight;
+int indexx = 0;
+
+int Repr(int v)
+{
+  if (v == parent[v]) return v;
+  return parent[v] = Repr(parent[v]);
+}
+
+void Union(int x, int y)
+{
+  x = Repr(x); y = Repr(y);
+  if (x == y) return;
+  if (ssize[x] < ssize[y]) swap(x, y);
+  parent[y] = x;
+  ssize[x] += ssize[y];
+  weight[x] += weight[y];
+  weight[x] /= (double) ssize[x];
+}
+
+
 class Container{
 private:
         double w;
-        vector<Container*> connections;
+        int ind;
 public:
     Container(int level){
         w = level;
+        ind = indexx;
+        indexx++;
+        parent.resize(parent.size() + 1);
+        parent[parent.size()-1] = parent.size()-1;
+        ssize.resize(ssize.size()+1);
+        ssize[ssize.size()-1] = 1;
+        weight.resize(weight.size() + 1);
+        weight[weight.size()-1] = w;
     }
 
-    int getAmount(){
-        return w;
+    double getAmount(){
+        return weight[Repr(ind)];
+    }
+     
+    int getIndex(){
+        return ind;
     }
 
     void connectTo(Container* c){
-        connections.emplace_back(c);
-        c->connectTo(this);
-        double sum = 0;
-
-        for(int i = 0; i < connections.size(); i++){
-            sum += connections[i]->getAmount();
-        }
-
-        sum /= connections.size();
-
-        for(int i = 0; i < connections.size(); i++){
-            connections[i]->setWater(sum);
-        }
+       Union(this->getIndex(), c->getIndex());
     }
 
     void disconnectFrom(Container* c){
-        int i;
-        for( i = 0; i < connections.size(); i++){
-            if(connections[i] == c) break;
-        }
-
-        connections.erase(connections.begin() + i);
-        c->disconnectFrom(this);
+        parent[ind] = ind;
     }
 
     void addWater(double amt){
@@ -47,27 +64,31 @@ public:
 
     void setWater(double amt){
         w = amt;
-        double sum = 0;
-
-        for(int i = 0; i < connections.size(); i++){
-            sum += connections[i]->getAmount();
-        }
-
-        sum /= connections.size();
-
-        for(int i = 0; i < connections.size(); i++){
-            connections[i]->setWater(sum);
-        }
+        weight[Repr(ind)] += amt/((double)ssize[Repr(ind)]);
     }
 };
+
+
+//int c, i, n, s, k, a, b;
+
+
+
 
 
 int main(){
 
     Container* c = new Container(5);
     Container* c1 = new Container(1);
+    Container* c2 = new Container(4);
+    Container* c3 = new Container(1);
 
     c->connectTo(c1);
+    c2->connectTo(c3);
 
-    cout << c->getAmount
+    cout << c->getAmount() << endl << c2->getAmount() << endl;
+
+    c->connectTo(c2);
+
+        cout << c->getAmount() << endl << c2->getAmount();
+
 }
